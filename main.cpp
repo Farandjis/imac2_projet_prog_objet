@@ -50,10 +50,10 @@ class Frame3D {
         return *this;
     }
 
-    Frame3D& operator+(const Frame3D& autre) {
-
-        vecteurs.insert(vecteurs.end(), autre.vecteurs.begin(), autre.vecteurs.end());
-        return *this;
+    Frame3D operator+(const Frame3D& autre) const{
+        Frame3D temp = Frame3D(*this);
+        temp.vecteurs.insert(temp.vecteurs.end(), autre.vecteurs.begin(), autre.vecteurs.end());
+        return temp;
     }
 
     int size() {
@@ -63,7 +63,7 @@ class Frame3D {
     void add(std::vector<double>& v) {
         assert(v.size() == 3);
         assert(v[0] != 0.0 || v[1] != 0.0 || v[2] != 0.0);
-        
+
         Vector vecXYZ = Vector();
         vecXYZ.x = v[0];
         vecXYZ.y = v[1];
@@ -135,6 +135,60 @@ int test_p1f() {
     return 0;
 }
 
+
+void test_p1h() {
+    std::cout << "--- Initialisation des trames ---" << std::endl;
+
+    Frame3D f1;
+    std::vector<double> v1_1 = {1.0, 0.0, 0.0};   f1.add(v1_1);
+    std::vector<double> v1_2 = {-1.0, 0.0, 0.0};  f1.add(v1_2);
+    std::vector<double> v1_3 = {0.0, 1.0, 0.0};   f1.add(v1_3);
+    std::vector<double> v1_4 = {0.0, -1.0, 0.0};  f1.add(v1_4);
+    std::vector<double> v1_5 = {0.0, 0.0, 1.0};   f1.add(v1_5);
+    std::vector<double> v1_6 = {0.0, 0.0, -1.0};  f1.add(v1_6);
+
+    Frame3D f2;
+    std::vector<double> v2_1 = {1.0, 0.0, 0.0}; f2.add(v2_1);
+    std::vector<double> v2_2 = {0.0, 1.0, 0.0}; f2.add(v2_2);
+    std::vector<double> v2_3 = {0.0, 0.0, 1.0}; f2.add(v2_3);
+    std::vector<double> v2_4 = {-1.0/sqrt(3.0), -1.0/sqrt(3.0), -1.0/sqrt(3.0)}; f2.add(v2_4);
+
+    Frame3D f3 = f1 + f2;
+
+    std::vector<double> cible1 = {1.0/sqrt(3.0), 1.0/sqrt(3.0), 1.0/sqrt(3.0)};
+    std::vector<double> cible2 = {1.0 - 1.0/sqrt(3.0), -1.0/sqrt(3.0), -1.0/sqrt(3.0)};
+
+    std::cout << "\n=== EVALUATION SUR LA CIBLE 1 ===" << std::endl;
+    std::cout << "F1 -> Qualite : " << f1.quality_measure(cible1)
+              << " | Normalisee : " << f1.quality_measure(cible1) / f1.size() << std::endl;
+    std::cout << "F2 -> Qualite : " << f2.quality_measure(cible1)
+              << " | Normalisee : " << f2.quality_measure(cible1) / f2.size() << std::endl;
+    std::cout << "F3 -> Qualite : " << f3.quality_measure(cible1)
+              << " | Normalisee : " << f3.quality_measure(cible1) / f3.size() << std::endl;
+
+    std::cout << "\n=== EVALUATION SUR LA CIBLE 2 ===" << std::endl;
+    std::cout << "F1 -> Qualite : " << f1.quality_measure(cible2)
+              << " | Normalisee : " << f1.quality_measure(cible2) / f1.size() << std::endl;
+    std::cout << "F2 -> Qualite : " << f2.quality_measure(cible2)
+              << " | Normalisee : " << f2.quality_measure(cible2) / f2.size() << std::endl;
+    std::cout << "F3 -> Qualite : " << f3.quality_measure(cible2)
+              << " | Normalisee : " << f3.quality_measure(cible2) / f3.size() << std::endl;
+
+    /*
+     * https://www.ultralytics.com/fr/glossary/normalization
+     * "La normalisation consiste à remettre les valeurs numériques à une échelle commune afin qu’aucune caractéristique
+     * ne domine un modèle en raison de son unité"
+     *
+     *Ici la caratéristique qui domine, c'est la taille de la frame (le nombre de vecteur).
+     *
+     * Nous remarquons que pour la cible 1, la qualité de F1 F2 sont égaux, sauf sur la version normalisé où c'est F2 qui domine.
+     * Même constat pour la cible 2, où F3 normalisé est loins derrière alors que c'était pareil pour F1 quand c'était non normalisé
+     *
+     * La version normalisé, sur une échelle commune aux trois Frame, nous montre vraiment quel est Frame est la meilleur
+     */
+}
+
+
 // TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 int main() {
     // TIP Press <shortcut actionId="RenameElement"/> when your caret is at the <b>lang</b> variable name to see how CLion can help you rename it.
@@ -152,7 +206,7 @@ int main() {
 
     frame = frame + frame2;
 
-    test_p1f();
+    test_p1h();
     return 0;
     // TIP See CLion help at <a href="https://www.jetbrains.com/help/clion/">jetbrains.com/help/clion/</a>. Also, you can try interactive lessons for CLion by selecting 'Help | Learn IDE Features' from the main menu.
 }
