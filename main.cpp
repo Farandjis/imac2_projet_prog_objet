@@ -1,5 +1,7 @@
+#include <cassert>
 #include <iostream>
 #include <vector>
+#include <cmath>
 
 class Vector {
     public:
@@ -48,17 +50,109 @@ class Frame3D {
         return *this;
     }
 
+    Frame3D& operator+(const Frame3D& autre) {
+
+        vecteurs.insert(vecteurs.end(), autre.vecteurs.begin(), autre.vecteurs.end());
+        return *this;
+    }
+
     int size() {
         return vecteurs.size();
     }
+
+    void add(std::vector<double>& v) {
+        assert(v.size() == 3);
+        assert(v[0] != 0.0 || v[1] != 0.0 || v[2] != 0.0);
+        
+        Vector vecXYZ = Vector();
+        vecXYZ.x = v[0];
+        vecXYZ.y = v[1];
+        vecXYZ.z = v[2];
+
+        vecteurs.push_back(vecXYZ);
+    }
+
+    double quality_measure(const std::vector<double>& v) {
+        assert(v.size() == 3);
+        assert(v[0] != 0.0 || v[1] != 0.0 || v[2] != 0.0);
+
+        double max = -2;
+
+        for (Vector d :vecteurs) {
+            double num = ((d.x * v[0]) + (d.y * v[1]) + (d.z * v[2]));
+            double denum = sqrt((d.x * d.x) + (d.y * d.y) + (d.z * d.z)) * sqrt((v[0] * v[0]) + (v[1] * v[1]) + (v[2] * v[2]));;
+            double res = num / denum;
+
+
+            if (res > max) {
+                max = res;
+            }
+        }
+
+        return max;
+    }
 };
 
+
+int test_p1f() {
+    Frame3D f1;
+
+    // 1. On remplit notre cadre avec deux vecteurs très simples
+    std::vector<double> vec1 = {1.0, 0.0, 0.0}; // Axe X
+    std::vector<double> vec2 = {0.0, 1.0, 0.0}; // Axe Y
+
+    f1.add(vec1);
+    f1.add(vec2);
+
+    std::cout << "=== TESTS DE LA MESURE DE QUALITE ===" << std::endl;
+
+    // --- TEST 1 : Un vecteur parfait ---
+    // Ce vecteur est identique à vec1, l'alignement est total.
+    std::vector<double> cible_parfaite = {1.0, 0.0, 0.0};
+    double res1 = f1.quality_measure(cible_parfaite);
+
+    std::cout << "\nTest 1 (Cible alignee sur X) : " << res1 << std::endl;
+    std::cout << "-> Attendu : 1.0 (car l'angle est de 0 degre, cos(0) = 1)" << std::endl;
+
+
+    // --- TEST 2 : Un vecteur intermédiaire ---
+    // Ce vecteur pointe à 45 degrés (pile entre X et Y).
+    std::vector<double> cible_diagonale = {1.0, 1.0, 0.0};
+    double res2 = f1.quality_measure(cible_diagonale);
+
+    std::cout << "\nTest 2 (Cible a 45 degres) : " << res2 << std::endl;
+    std::cout << "-> Attendu : ~0.707 (ce qui correspond a 1/sqrt(2), le cosinus de 45 degres)" << std::endl;
+
+
+    // --- TEST 3 : Le vecteur de ton énoncé (Question h) ---
+    // Ton énoncé demande de tester avec [1/sqrt(3), 1/sqrt(3), 1/sqrt(3)]
+    std::vector<double> cible_enonce = {1.0/sqrt(3.0), 1.0/sqrt(3.0), 1.0/sqrt(3.0)};
+    double res3 = f1.quality_measure(cible_enonce);
+
+    std::cout << "\nTest 3 (Vecteur de l'enonce) : " << res3 << std::endl;
+    std::cout << "-> Attendu : ~0.577 (soit 1/sqrt(3))" << std::endl;
+
+    return 0;
+}
 
 // TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 int main() {
     // TIP Press <shortcut actionId="RenameElement"/> when your caret is at the <b>lang</b> variable name to see how CLion can help you rename it.
 
+    Frame3D frame;
 
+    std::vector<double> v = {5.0, 2.0, 3.0};
+    frame.add(v);
+    v = {9,8,7};
+    frame.add(v);
+
+    Frame3D frame2 = Frame3D(frame);
+    v = {5.5,10,7};
+    frame2.add(v);
+
+    frame = frame + frame2;
+
+    test_p1f();
     return 0;
     // TIP See CLion help at <a href="https://www.jetbrains.com/help/clion/">jetbrains.com/help/clion/</a>. Also, you can try interactive lessons for CLion by selecting 'Help | Learn IDE Features' from the main menu.
 }
