@@ -176,6 +176,7 @@ template < typename T, int n >
                 break;
             }
         }
+        assert(!vecteurEstNul);
 
         double max = -2;
 
@@ -193,6 +194,45 @@ template < typename T, int n >
 
             double denum = sqrt(denum_d) * sqrt(denum_v);
             double res = num / denum;
+
+            if (res > max) {
+                max = res;
+            }
+        }
+
+        return max;
+    }
+
+    double quality_measure_bool(const std::vector<bool>& v) {
+
+        // on vérifie que le vecteur ne soit pas nul
+        bool vecteurEstNul = true;
+        for (int i = 0; i < n; i++) {
+
+            if (v[i] != 0) {
+                vecteurEstNul = false;
+                break;
+            }
+        }
+        assert(!vecteurEstNul);
+
+        double max = -2;
+
+        assert(v.size() == n);
+        for (std::vector<T> d :vecteurs) {
+            assert(d.size() == v.size());
+
+            int interDV = 0; // nb de cases true en commun
+            int unionDV = 0; // nb cases true en faisant l'union de d et v
+            for (int i = 0; i < n; i++) {
+                interDV += (d[i] == v[i] && d[i] == true) ? 1 : 0; // +1 si en commun
+                unionDV += (d[i] == true || v[i] == true) ? 1 : 0; // +1 si l'un des deux a true
+            }
+
+            double res = 0;
+            if (unionDV != 0) {
+                res = (double) interDV / (double) unionDV;
+            }
 
             if (res > max) {
                 max = res;
@@ -371,6 +411,46 @@ void test_comparaison_frame3d_vs_frame() {
         std::cout << "-> ERREUR : Il y a une difference de calcul." << std::endl;
     }
 }
+
+void test_p2_bool() {
+    std::cout << "\n=======================================================" << std::endl;
+    std::cout << "--- TESTS PARTIE 2.c : FRAME<bool, n> (6D et 8D) ---" << std::endl;
+    std::cout << "=======================================================\n" << std::endl;
+
+    // --- TEST 1 : En 6 dimensions (n = 6) ---
+    Frame<bool, 6> f_bool_6d;
+
+    std::vector<bool> d1 = {true, false, true, true, false, false};  // {0, 2, 3}
+    std::vector<bool> d2 = {true, true, false, true, true, false};   // {0, 1, 3, 4}
+    std::vector<bool> d3 = {false, false, false, false, false, true}; // {5}
+
+    f_bool_6d.add(d1);
+    f_bool_6d.add(d2);
+    f_bool_6d.add(d3);
+
+    std::vector<bool> cible_6d = {true, true, false, true, false, false}; // {0, 1, 3}
+    // d1 vs cible : inter = {0, 3} (2), union = {0, 1, 2, 3} (4) -> 2/4 = 0.5
+    // d2 vs cible : inter = {0, 1, 3} (3), union = {0, 1, 3, 4} (4) -> 3/4 = 0.75
+    // d3 vs cible : inter = {} (0), union = {0, 1, 3, 5} (4) -> 0/4 = 0.0
+    std::cout << "Test 1 (Dimension 6) -> Attendu : 0.75 | Obtenu : "
+              << f_bool_6d.quality_measure_bool(cible_6d) << std::endl;
+
+
+    // --- TEST 2 : En 8 dimensions (n = 8) ---
+    Frame<bool, 8> f_bool_8d;
+
+    std::vector<bool> v1 = {true, false, false, false, true, false, false, true};  // {0, 4, 7}
+    std::vector<bool> v2 = {false, true, true, false, false, true, true, false};   // {1, 2, 5, 6}
+
+    f_bool_8d.add(v1);
+    f_bool_8d.add(v2);
+
+    std::vector<bool> cible_8d = {true, false, false, false, false, false, false, true}; // {0, 7}
+    // v1 vs cible : inter = {0, 7} (2), union = {0, 4, 7} (3) -> 2/3 = 0.666667
+    // v2 vs cible : inter = {} (0), union = 6 -> 0.0
+    std::cout << "Test 2 (Dimension 8) -> Attendu : ~0.666667 | Obtenu : "
+              << f_bool_8d.quality_measure_bool(cible_8d) << std::endl;
+}
 // TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
 int main() {
     // TIP Press <shortcut actionId="RenameElement"/> when your caret is at the <b>lang</b> variable name to see how CLion can help you rename it.
@@ -390,7 +470,8 @@ int main() {
 
     // test_p1h();
     // test_p2_quality_measure();
-    test_comparaison_frame3d_vs_frame();
+    // test_comparaison_frame3d_vs_frame();
+    test_p2_bool();
     return 0;
     // TIP See CLion help at <a href="https://www.jetbrains.com/help/clion/">jetbrains.com/help/clion/</a>. Also, you can try interactive lessons for CLion by selecting 'Help | Learn IDE Features' from the main menu.
 }
