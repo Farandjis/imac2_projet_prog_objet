@@ -217,3 +217,18 @@ void test_p2_bool() {
     std::cout << "Test 2 (Dimension 8) -> Attendu : ~0.666667 | Obtenu : "
               << f_bool_8d.quality_measure_bool(cible_8d) << std::endl;
 }
+
+void test_p2d() {
+    std::cout << "\n=== TEST PARTIE 2.d : AddFrameException ===" << std::endl;
+    Frame<double, 3> f;
+    std::vector<double> mauvais_vecteur = {1.0, 2.0}; // Taille 2 au lieu de 3
+
+    try {
+        f.add(mauvais_vecteur);
+    } catch (const AddFrameException& e) {
+        std::cerr << e.what() << std::endl;
+        std::exit(EXIT_FAILURE);
+    }
+
+    // test réussit, ça dit bien : Erreur : la taille du vecteur (2) ne correspond pas a la dimension du frame (3).
+}

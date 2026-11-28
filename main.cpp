@@ -43,6 +43,7 @@ int main() {
     // test_p2_quality_measure();
     // test_comparaison_frame3d_vs_frame();
     // test_p2_bool();
+    // test_p2d();
     return 0;
     // TIP See CLion help at <a href="https://www.jetbrains.com/help/clion/">jetbrains.com/help/clion/</a>. Also, you can try interactive lessons for CLion by selecting 'Help | Learn IDE Features' from the main menu.
 }

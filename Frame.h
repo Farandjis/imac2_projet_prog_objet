@@ -6,7 +6,22 @@
 #define PROJET_FRAME_H
 #include <cassert>
 #include <vector>
+#include <exception>
+#include <string>
 
+class AddFrameException : public std::exception {
+    private:
+        std::string m_what;
+
+    public:
+        AddFrameException(const std::string& message) noexcept : m_what(message) {
+
+        }
+
+        const char* what() const noexcept override {
+            return m_what.c_str();
+        }
+};
 
 template < typename T, int n >
  class Frame {
@@ -52,7 +67,12 @@ template < typename T, int n >
     }
 
     void add(std::vector<T>& v) {
-        assert(v.size() == n);
+        if (v.size() != n) {
+            throw AddFrameException(
+            "Erreur : la taille du vecteur (" + std::to_string(v.size()) +
+            ") ne correspond pas a la dimension du frame (" + std::to_string(n) + ")."
+            );
+        }
 
         // on vérifie que le vecteur ne soit pas nul
         bool vecteurEstNul = true;

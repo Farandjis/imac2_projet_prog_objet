@@ -10,5 +10,5 @@ void test_p1h();
 void test_p2_quality_measure();
 void test_comparaison_frame3d_vs_frame();
 void test_p2_bool();
-
+void test_p2d();
 #endif //PROJET_FONCTIONSTESTS_H

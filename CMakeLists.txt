@@ -11,3 +11,5 @@ add_executable(Projet main.cpp
         Frame3D.h
         Frame.h
         fonctionsTests.h)
+
+target_link_options(Projet PRIVATE -static)
