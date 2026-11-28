@@ -8,6 +8,7 @@
 #include <vector>
 #include <exception>
 #include <string>
+#include <cmath>
 
 class AddFrameException : public std::exception {
     private:

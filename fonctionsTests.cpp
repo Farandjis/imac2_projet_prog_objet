@@ -9,6 +9,8 @@
 #include "Frame.h"
 #include "fonctionsTests.h"
 
+#include "MinimalFrame.h"
+
 int test_p1f() {
     Frame3D f1;
 
@@ -231,4 +233,49 @@ void test_p2d() {
     }
 
     // test réussit, ça dit bien : Erreur : la taille du vecteur (2) ne correspond pas a la dimension du frame (3).
+}
+
+void test_p2e() {
+    std::cout << "\n=======================================================" << std::endl;
+    std::cout << "--- TESTS PARTIE 2.e : MINIMALFRAME (SANS DOUBLONS) ---" << std::endl;
+    std::cout << "=======================================================\n" << std::endl;
+
+    // --- TEST 1 : Ajout manuel avec doublons ---
+    MinimalFrame<double, 3> mf1;
+    std::vector<double> v1 = {1.0, 0.0, 0.0};
+    std::vector<double> v2 = {0.0, 1.0, 0.0};
+    std::vector<double> v1_bis = {1.0, 0.0, 0.0}; // Doublon exact de v1
+
+    mf1.add(v1);
+    mf1.add(v2);
+    mf1.add(v1_bis); // Doit être ignoré !
+
+    std::cout << "Test 1 (Ajout avec doublon) -> Taille attendue : 2 | Obtenue : "
+              << mf1.size() << std::endl;
+
+
+    // --- TEST 2 : Conversion depuis un Frame classique contenant des doublons ---
+    Frame<double, 3> f_avec_doublons;
+    std::vector<double> v3 = {0.0, 0.0, 1.0};
+
+    f_avec_doublons.add(v1);
+    f_avec_doublons.add(v2);
+    f_avec_doublons.add(v1); // Doublon
+    f_avec_doublons.add(v3);
+    f_avec_doublons.add(v2); // Doublon
+
+    std::cout << "\nTaille du Frame classique (avec doublons) : " << f_avec_doublons.size() << " (attendu : 5)" << std::endl;
+
+    // Appel de ton constructeur de conversion
+    MinimalFrame<double, 3> mf2(f_avec_doublons);
+
+    std::cout << "Test 2 (Apres conversion en MinimalFrame) -> Taille attendue : 3 | Obtenue : "
+              << mf2.size() << std::endl;
+
+
+    // --- TEST 3 : Vérification des méthodes héritées ---
+    std::vector<double> cible = {1.0, 0.0, 0.0};
+    std::cout << "\nTest 3 (Mesure de qualite heritee) -> Attendu : 1.0 | Obtenu : "
+              << mf2.quality_measure(cible) << std::endl;
+
 }
